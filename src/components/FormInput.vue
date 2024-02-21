@@ -5,7 +5,8 @@ import { Status } from '../validate';
 defineProps<{
     name: string,
     modelValue: string,
-    status: Status
+    status: Status,
+    type:string
 }>();
 const emit = defineEmits<{
     (event: 'update:modelValue', value: string): void
@@ -20,7 +21,7 @@ function handleInput(event: Event) {
     <div class="field">
         <label :for="name" class="label">{{ name }}</label>
         <div class="control">
-            <input type="text" class="input" :id="name" :value="modelValue" @input="handleInput">
+            <input :type="type" class="input" :id="name" :value="modelValue" @input="handleInput">
         </div>
         <p class="is-danger help" v-if="!status.valid">{{ status.message }}</p>
     </div>
