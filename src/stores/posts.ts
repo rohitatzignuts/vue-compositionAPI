@@ -36,26 +36,32 @@ export const usePosts = defineStore('posts',{
             this.ids = ids
             this.all = all
         },
-        createPost(post: ITimeLineItem){
-            const body = JSON.stringify({ ...post,createdAt : post.createdAt.toISO() })
-            return window.fetch('api/posts' , {
-                method : 'POST',
-                headers : {
-                    'Content-Type' : 'application/json'
-                },
-                body
-            }).then(response => {
+        async createPost(post: ITimeLineItem){
+            const body = JSON.stringify({ ...post, createdAt : post.createdAt.toISO() })
+            try {
+                const response = await window.fetch('api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body
+                })
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    const errorMessage = await response.text(); // Get the error message from the response
+                    throw new Error(`Network response was not ok: ${errorMessage}`)
                 }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Error creating post:', error);
-                throw error; // Rethrow the error to propagate it to the caller
-            });
-        }
+                const newPost = await response.json()
         
+                // Update the store with the new post
+                this.ids.push(newPost.id)
+                this.all.set(newPost.id, newPost)
+        
+                return newPost
+            } catch (error) {
+                console.error('Error creating post:', error)
+                throw error // Rethrow the error to propagate it to the caller
+            }
+        }
     },
     getters : {
         fiteredPosts : (state) : ITimeLineItem[] => {

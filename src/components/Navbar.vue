@@ -13,7 +13,7 @@ const modal = useModal()
                 <RouterLink to="/" class="button">Home</RouterLink>
                 <RouterLink to="/posts/new" class="button">New Post</RouterLink>
                 <button  class="button" @click="userStore.logoutUser()">Log Out</button>
-            </div>            
+            </div>              
             <div class="buttons" v-else>
                 <button class="button" @click="modal.showModal('signIn')" :key="'signIn'">Sign In</button>
                 <button class="button" @click="modal.showModal('signUp')" :key="'signUp'">Sign Up</button>
@@ -21,6 +21,6 @@ const modal = useModal()
         </div>
     </div>  
     <Teleport to="#modal">
-        <component :is="modal.component" :key="modal.component.key" />
+        <component :is="modal.component" :key="modal.component  " />
     </Teleport>
 </template>

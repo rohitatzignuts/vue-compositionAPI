@@ -24,5 +24,6 @@ await postStore.fetchPosts()
             class="panel-block"
             :post="post"
         />
+        
     </nav>
 </template>

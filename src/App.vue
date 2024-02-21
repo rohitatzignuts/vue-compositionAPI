@@ -4,7 +4,7 @@ import Navbar from './components/Navbar.vue';
 import { useModal } from './composables/modal';
 import { useUsers } from './stores/users'
 import SignUpForm from './components/SignUpForm.vue';
-// import SignInForm from './components/SignInForm.vue';
+import SignInForm from './components/SignInForm.vue';
 const userStore = useUsers()
 const modal = useModal()
 const modalStyle = computed(() => {
@@ -25,6 +25,7 @@ userStore.authenticate()
   <div class="modal" id="modal" style="color: #ffffff ;" :style="modalStyle">
     <div class="modal-background"></div>
     <div class="modal-content">
+      <!-- <SignInForm /> -->
       <SignUpForm />
     </div>
     <button class="modal-close is-large" aria-label="close" @click="modal.hideModal"></button>

@@ -57,6 +57,16 @@ app.post('/logout',(req,res)=>{
     res.cookie(COOKIE,'',{httpOnly:true})
     res.status(200).end()
 })
+//login user
+app.post('/login',(req,res)=>{
+    const targetUser = allUsers.find(user => user.username === req.body.username)
+    if(!targetUser || targetUser.password !== req.body.password){
+        res.status(401).end()
+    }else{
+        authenticate(targetUser.id , req,res)
+        res.status(200).end()
+    }
+});
 //authenticate user
 function authenticate ( id : string , req : Request , res : Response){
     //sign jsonwebtoken
@@ -66,6 +76,7 @@ function authenticate ( id : string , req : Request , res : Response){
     })
     res.cookie(COOKIE,token,{httpOnly:true})
 }
+//create user
 app.post('/users',(req,res)=>{
     const user : User = {...req.body , id : uuidv4()}
     authenticate(user.id , req,res)

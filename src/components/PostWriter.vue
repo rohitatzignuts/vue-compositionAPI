@@ -1,43 +1,43 @@
 <script setup lang="ts">
-import { ITimeLineItem } from '../posts';
+import { ITimeLineItem, Post } from '../posts';
 import { ref, watch, onMounted } from 'vue';
 import {marked} from 'marked';
 import hljs from 'highlight.js/lib/core';
-import javascript from 'highlight.js/lib/languages/javascript';
+// import javascript from 'highlight.js/lib/languages/javascript';
 import {debounce} from 'lodash'
-hljs.registerLanguage('javascript', javascript);
+// hljs.registerLanguage('javascript', javascript);
 import { usePosts } from '../stores/posts';
 import { useRouter } from 'vue-router';
 
 const props = defineProps<{
-    post: ITimeLineItem
+    post: ITimeLineItem 
 }>()
-const router = useRouter()
-const posts = usePosts()
-const postTitle = ref(props.post.title)
-const htmlValue = ref('')
-const content = ref(props.post.markDown)
+    const router = useRouter()
+    const posts = usePosts()
+    const postTitle = ref(props.post.title)
+    const htmlValue = ref('')
+    const content = ref(props.post.markDown)
 
-function handleInput(event: Event) {
-    const target = event.target as HTMLTextAreaElement;
-    content.value = target.value;
-}
+    function handleInput(event: Event) {
+        const target = event.target as HTMLTextAreaElement;
+        content.value = target.value;
+    }
 
-function parseHTML(markdown: string){
-    htmlValue.value = marked(markdown, {
-        gfm: true,
-        breaks: true,
-        highlight: (code) => {
-            return hljs.highlightAuto(code).value
-        }
-    })
-}
-watch(content, debounce((newContent) => {
-    parseHTML(newContent)
-},250), { immediate: true });
+    function parseHTML(markdown: string){
+        htmlValue.value = marked(markdown, {
+            gfm: true,
+            breaks: true,
+            highlight: (code) => {
+                return hljs.highlightAuto(code).value
+            }
+        })
+    }
+    watch(content, debounce((newContent) => {
+        parseHTML(newContent)
+    },250), { immediate: true });
 
     async function handleClick(){
-    const newPost : ITimeLineItem = {
+    const newPost : ITimeLineItem | Post= {
         ...props.post,
         title : postTitle.value,
         markDown : content.value,
@@ -45,7 +45,7 @@ watch(content, debounce((newContent) => {
     }
     await posts.createPost(newPost)
     router.push('/')
-}
+    }
 onMounted(() => {
     content.value = props.post.markDown;
 })
