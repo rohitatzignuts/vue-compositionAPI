@@ -60,8 +60,8 @@ app.get("/current-user", (req, res) => {
 });
 
 app.post("/logout", (_req, res) => {
-  res.cookie(COOKIE, "", { httpOnly: true });
-  res.status(200).end();
+    res.cookie(COOKIE, "", { httpOnly: true });
+    res.status(200).end();
 });
 
 app.post<{}, {}, NewUser>("/login", (req, res) => {

@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe,expect,it } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
-import Navbar from "./Navbar.vue";
+import Navbar from "../Navbar.vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { routes } from "../../router";
 import { useUsers } from "../../stores/users";

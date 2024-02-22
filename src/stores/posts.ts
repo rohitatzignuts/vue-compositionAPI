@@ -4,13 +4,13 @@ import { Period } from "../constants"
 import { Post ,TimelinePost } from "../posts"
 
 interface PostsState {
-  ids: string[]
-  all: Map<string, Post>
-  selectedPeriod: Period
+    ids: string[]
+    all: Map<string, Post>
+    selectedPeriod: Period
 }
 
 function delay () {
-  return new Promise<void>(res => setTimeout(res, 1500))
+    return new Promise<void>(res => setTimeout(res, 1500))
 }
 
 export const usePosts = defineStore("posts", {
