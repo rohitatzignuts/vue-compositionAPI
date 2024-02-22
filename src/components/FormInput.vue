@@ -1,19 +1,20 @@
-<script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
-import { Status } from '../validate';
+<script lang="ts" setup>
+import { Status } from '../validation';
 
 defineProps<{
-    name: string,
-    modelValue: string,
-    status: Status,
-    type:string
-}>();
+    name: string
+    modelValue: string
+    status: Status
+    type: string
+}>()
+
 const emit = defineEmits<{
     (event: 'update:modelValue', value: string): void
-}>();
+}>()
 
-function handleInput(event: Event) {
-    emit('update:modelValue', (event.target as HTMLInputElement).value);
+function handleInput (e: Event) {
+    const value = (e.target as HTMLInputElement).value
+    emit('update:modelValue', value)
 }
 </script>
 
@@ -21,9 +22,11 @@ function handleInput(event: Event) {
     <div class="field">
         <label :for="name" class="label">{{ name }}</label>
         <div class="control">
-            <input :type="type" class="input" :id="name" :value="modelValue" @input="handleInput">
+        <input :type="type" :id="name" class="input" :value="modelValue" @input="handleInput">
         </div>
-        <p class="is-danger help" v-if="!status.valid">{{ status.message }}</p>
+
+        <p class="is-danger help" v-if="!status.valid">
+        {{ status.message }}
+        </p>
     </div>
 </template>
-

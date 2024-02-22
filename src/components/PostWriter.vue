@@ -1,74 +1,113 @@
-<script setup lang="ts">
-import { ITimeLineItem, Post } from '../posts';
-import { ref, watch, onMounted } from 'vue';
-import {marked} from 'marked';
+<script lang="ts" setup>
+import { ref, onMounted, watch } from "vue";
+import { Post, TimelinePost } from "../posts";
+import { marked } from "marked";
 import hljs from 'highlight.js/lib/core';
-// import javascript from 'highlight.js/lib/languages/javascript';
-import {debounce} from 'lodash'
-// hljs.registerLanguage('javascript', javascript);
-import { usePosts } from '../stores/posts';
-import { useRouter } from 'vue-router';
+import debounce from "lodash/debounce";
+import { useUsers } from "../stores/users";
 
 const props = defineProps<{
-    post: ITimeLineItem 
-}>()
-    const router = useRouter()
-    const posts = usePosts()
-    const postTitle = ref(props.post.title)
-    const htmlValue = ref('')
-    const content = ref(props.post.markDown)
+    post: TimelinePost | Post;
+}>();
 
-    function handleInput(event: Event) {
-        const target = event.target as HTMLTextAreaElement;
-        content.value = target.value;
-    }
+const emit = defineEmits<{
+    (event: "submit", post: Post): void;
+}>();
 
-    function parseHTML(markdown: string){
-        htmlValue.value = marked(markdown, {
-            gfm: true,
-            breaks: true,
-            highlight: (code) => {
-                return hljs.highlightAuto(code).value
-            }
-        })
-    }
-    watch(content, debounce((newContent) => {
-        parseHTML(newContent)
-    },250), { immediate: true });
+const title = ref(props.post.title);
+const content = ref(props.post.markdown);
+const html = ref("");
+const contentEditable = ref<HTMLDivElement>();
+const usersStore = useUsers();
 
-    async function handleClick(){
-    const newPost : ITimeLineItem | Post= {
-        ...props.post,
-        title : postTitle.value,
-        markDown : content.value,
-        htmlValue : htmlValue.value
+function parseHtml(markdown: string) {
+    marked.parse(
+    markdown,
+    {
+        gfm: true,
+        breaks: true,
+        highlight: (code) => {
+        return hljs.highlightAuto(code).value;
     }
-    await posts.createPost(newPost)
-    router.push('/')
+    },
+    (_err, parseResult) => {
+        html.value = parseResult;
+    });
+}
+
+watch(
+    content,
+    debounce((newContent) => {
+        parseHtml(newContent);
+    }, 250),
+    {
+        immediate: true
     }
+);
+
 onMounted(() => {
-    content.value = props.post.markDown;
-})
+    if (!contentEditable.value) {
+        throw Error("ContentEditable DOM node was not found");
+    }
+    contentEditable.value.innerText = content.value;
+});
+
+function handleInput() {
+    if (!contentEditable.value) {
+        throw Error("ContentEditable DOM node was not found");
+    }
+    content.value = contentEditable.value.innerText;
+}
+
+async function handleClick() {
+    if (!usersStore.currentUserId) {
+        throw Error('User was not found')
+    }
+
+const newPost: Post = {
+    ...props.post,
+    created: typeof props.post.created === 'string' ? props.post.created : props.post.created.toISO(),
+    title: title.value,
+    authorId: usersStore.currentUserId,
+    markdown: content.value,
+    html: html.value
+    };
+    emit('submit', newPost);
+}
 </script>
 
 <template>
     <div class="columns">
         <div class="column">
-            <div class="field">
-                <div class="label">Post Title</div>
-                <input type="text" class="input" v-model="postTitle">
-            </div>
+        <div class="field">
+            <div class="label">Post title</div>
+            <input
+            v-model="title"
+            type="text"
+            class="input" />
+        </div>
         </div>
     </div>
+
     <div class="columns">
         <div class="column">
-            <textarea cols="80" rows="10" @input="handleInput" v-model="content"></textarea>
+        <div
+            ref="contentEditable"
+            contenteditable
+            @input="handleInput" />
         </div>
-        <div class="column" v-html="htmlValue" />
+        <div class="column">
+        <div v-html="html" />
+        </div>
     </div>
+
     <div class="columns">
         <div class="column">
-            <button class="is-primary button is-pulled-right" @click="handleClick">Save Post</button>
+        <button
+            class="button is-primary is-pulled-right"
+            @click="handleClick">
+            Save Post
+        </button>
         </div>
-    </div>  
+    </div>
 </template>

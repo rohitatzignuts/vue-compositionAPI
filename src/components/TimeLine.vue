@@ -1,29 +1,35 @@
 <script setup lang="ts">
+import { usePosts } from "../stores/posts";
+import { periods } from "../constants"
+import TimelineItem from "./TimelineItem.vue";
 
-import TimeLineItem from './TimeLineItem.vue';
-import {usePosts} from '../stores/posts'
-import {navLinks} from '../constants'
+const postsStore = usePosts()
+await postsStore.fetchPosts()
 
-const postStore = usePosts()
-await postStore.fetchPosts()
 </script>
 
 <template>
-    <nav class="panel is-primary">
+    <div class="message is-primary is-marginless">
+        <div class="message-header">
+        <div>Posts for {{ postsStore.selectedPeriod.toLowerCase() }}</div>
+        </div>
+    </div>
+    <nav class="is-primary panel">
         <span class="panel-tabs">
-            <a 
-            v-for="navLink in navLinks"
-            :key="navLink"
-            :class="{'is-active' : navLink == postStore.selectedLink}"
-            @click="postStore.setSelectedLink(navLink)"
-            >{{ navLink }}</a>
+        <a
+            v-for="period of periods"
+            :key="period"
+            :class="{ 'is-active': period === postsStore.selectedPeriod }"
+            @click="postsStore.setSelectedPeriod(period)"
+        >
+            {{ period }}
+        </a>
         </span>
-        <TimeLineItem 
-            v-for="post in postStore.fiteredPosts"
-            :key="post.id"
-            class="panel-block"
-            :post="post"
+
+        <TimelineItem
+        v-for="post of postsStore.filteredPosts"
+        :key="post.id"
+        :post="post"
         />
-        
     </nav>
 </template>

@@ -1,88 +1,95 @@
-import { defineStore } from 'pinia'
-import { Post } from '../posts'
-import { NavLink } from '../constants'
-import { ITimeLineItem } from '../posts'
-import { DateTime } from 'luxon'
+import { DateTime } from "luxon"
+import { defineStore } from "pinia"
+import { Period } from "../constants"
+import { Post ,TimelinePost } from "../posts"
 
-interface PostState {
-    ids : string[],
-    all : Map<string,Post>,
-    selectedLink : NavLink
+interface PostsState {
+  ids: string[]
+  all: Map<string, Post>
+  selectedPeriod: Period
 }
 
-function delay() {
-    return new Promise<void>(res => setTimeout(res,1000))
+function delay () {
+  return new Promise<void>(res => setTimeout(res, 1500))
 }
-export const usePosts = defineStore('posts',{
-    state : () :PostState => ({
-        ids : [],
-        all : new Map(),
-        selectedLink : 'Today'
+
+export const usePosts = defineStore("posts", {
+    state: (): PostsState => ({
+        ids: [],
+        all: new Map(),
+        selectedPeriod: "Today"
     }),
-    actions : {
-        setSelectedLink(navLinks : NavLink){
-            this.selectedLink = navLinks
-        },
-        async fetchPosts(){
-            const res = await window.fetch('api/posts')
-            const posts = (await res.json()) as Post[]
-            await delay()
-            let ids : string[] = []
-            let all = new Map<string,Post>()
-            posts.forEach( post => {
-                ids.push(post.id)
-                all.set(post.id,post)
-            })
-            this.ids = ids
-            this.all = all
-        },
-        async createPost(post: ITimeLineItem){
-            const body = JSON.stringify({ ...post, createdAt : post.createdAt.toISO() })
-            try {
-                const response = await window.fetch('api/posts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body
-                })
-                if (!response.ok) {
-                    const errorMessage = await response.text(); // Get the error message from the response
-                    throw new Error(`Network response was not ok: ${errorMessage}`)
-                }
-                const newPost = await response.json()
-        
-                // Update the store with the new post
-                this.ids.push(newPost.id)
-                this.all.set(newPost.id, newPost)
-        
-                return newPost
-            } catch (error) {
-                console.error('Error creating post:', error)
-                throw error // Rethrow the error to propagate it to the caller
-            }
-        }
+
+    actions: {
+        setSelectedPeriod (period: Period) {
+        this.selectedPeriod = period
     },
-    getters : {
-        fiteredPosts : (state) : ITimeLineItem[] => {
-            return state.ids 
-            .map(id => {
-                const post = state.all.get(id)
-                if(!post){
-                    throw Error(`Post with ${id} not Found!`)
-                }
-                return {    
-                ...post,
-                createdAt : DateTime.fromISO(post.createdAt)
-            }}).filter(post => {
-                if(state.selectedLink === 'Today'){
-                    return post.createdAt >= DateTime.now().minus({day:1})
-                }
-                if(state.selectedLink === 'This Week'){
-                    return post.createdAt >= DateTime.now().minus({week:1})
-                }
-                return post 
-            })
-        }
+
+    async fetchPosts () {
+    const res = await window.fetch("/api/posts")
+    const data = (await res.json()) as Post[]
+    await delay()
+
+    let ids: string[] = []
+    let all = new Map<string, Post>()
+    for (const post of data) {
+        ids.push(post.id)
+        all.set(post.id, post)
+    } 
+
+    this.ids = ids
+    this.all = all
+    },
+
+    createPost (post: Post) {
+    const body = JSON.stringify(post)
+    return window.fetch("/api/posts", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json"
+        },
+        body
+    })
+    },
+
+    updatePost (post: Post) {
+    const body = JSON.stringify(post)
+    return window.fetch("/api/posts", {
+        method: "PUT",
+        headers: {
+        "Content-Type": "application/json"
+        },
+        body
+    })
     }
-})              
+},
+
+getters: {
+    filteredPosts: (state): TimelinePost[] => {
+    return state.ids
+    .map(id => {
+        const post = state.all.get(id)
+
+        if (!post) {
+        throw Error(`Post with id of ${id} was expected but not found.`)
+        }
+
+        return {
+        ...post,
+        created: DateTime.fromISO(post.created)
+        }
+    })
+    .filter(post => {
+        if (state.selectedPeriod === "Today") {
+        return post.created >= DateTime.now().minus({ day: 1 })
+        }
+
+        if (state.selectedPeriod  === "This Week") {
+        return post.created >= DateTime.now().minus({ week: 1 })
+        }
+
+        return post
+    })
+    }
+}
+})

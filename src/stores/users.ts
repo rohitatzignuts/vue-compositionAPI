@@ -1,59 +1,50 @@
-import { defineStore } from 'pinia'
-import { NewUser } from '../user';
+import { defineStore } from "pinia";
+import { NewUser } from "../users";
 
-interface UserState {
-    currentId?: string
+interface UsersState {
+  currentUserId?: string
 }
-export const useUsers = defineStore('users',{
-    state : (): UserState => ({
-        currentId : undefined
-    }),
-    actions : {
-        async  authenticate() {
-            try {
-                const res = await window.fetch('/api/current-user',{
-                headers :{
-                "Content-Type" : "application/json"
-                }
-            })
-            const result = await res.json()
-            this.currentId = result.id
-            } catch (error) {
-                this.currentId = undefined
-            }
+
+export const useUsers = defineStore("users", {
+  state: (): UsersState => ({
+    currentUserId: undefined,
+  }),
+
+  actions: {
+    async authenticate() {
+      try {
+        const res = await window.fetch("/api/current-user", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await res.json();
+        this.currentUserId = result.id;
+      } catch (e) {
+        this.currentUserId = undefined;
+      }
+    },
+
+    async logout() {
+      await window.fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        async createUser(newUser: NewUser) {
-            const body = JSON.stringify(newUser);
-            try {
-                const response = await window.fetch('api/users', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return this.authenticate(); // Authenticate user
-            } catch (error) {
-                console.error('Error creating user:', error);
-                throw error;
-            }
+      });
+      return this.authenticate();
+    },
+
+    async createUser(newUser: NewUser) {
+      const body = JSON.stringify(newUser);
+      await window.fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        async logoutUser() {
-            try {
-                await window.fetch('api/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                });
-                return this.authenticate(); // Authenticate user
-            } catch (error) {
-                console.error('Error creating user:', error);
-                throw error;
-            }
-        }    
-    }
-})
+        body,
+      });
+      return this.authenticate();
+    },
+  },
+});

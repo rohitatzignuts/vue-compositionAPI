@@ -1,22 +1,22 @@
-// useModal.ts
-import { ref } from "vue";
-import SignUpForm from "../components/SignUpForm.vue";
-import SignInForm from "../components/SignInForm.vue";
+import { ref, shallowRef } from "vue";
+import SigninForm from "../components/SigninForm.vue";
+import SignupForm from "../components/SignupForm.vue";
+
 
 const show = ref(false);
-const component = ref<any>(null); // Initialize with null to prevent initial rendering
+const component = shallowRef();
 
 export function useModal() {
     return {
         show,
         component,
-        showModal: (type: 'signIn' | 'signUp') => {
-            show.value = true;
-            switch (type) {
-                case 'signIn': component.value = { component: SignInForm, key: 'signIn' }; break;
-                case 'signUp': component.value = { component: SignUpForm, key: 'signUp' }; break;
-            }
+        showModal: (type: 'signUp' | 'signIn') => {
+        show.value = true
+        switch (type) {
+            case 'signIn': return component.value = SigninForm
+            case 'signUp': return component.value = SignupForm
+        }
         },
-        hideModal: () => show.value = false
+        hideModal: () => (show.value = false),
     };
 }
