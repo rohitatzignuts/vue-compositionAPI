@@ -1,6 +1,6 @@
 import { ref, shallowRef } from "vue";
-import SigninForm from "../components/SigninForm.vue";
-import SignupForm from "../components/SignupForm.vue";
+import SigninForm from "../components/SignInForm.vue";
+import SignupForm from "../components/SignUpForm.vue";
 
 
 const show = ref(false);
