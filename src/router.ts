@@ -5,9 +5,7 @@ import NewPost from "./views/NewPost.vue"
 import ShowPost from "./views/ShowPost.vue"
 import EditPost from "./views/EditPost.vue"
 
-export const router = createRouter({
-history: createWebHistory(),
-routes: [
+export const routes = [
     {
     path: "/",
     component: Home
@@ -34,4 +32,7 @@ routes: [
     component: ShowPost
     }
 ]
+export const router = createRouter({
+    history: createWebHistory(),
+    routes
 })

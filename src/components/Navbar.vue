@@ -17,13 +17,14 @@ async function logout () {
     <div class="navbar">
         <div class="navbar-end">
         <div v-if="usersStore.currentUserId" class="buttons">
-            <RouterLink to="/posts/new" class="button">New Post</RouterLink>
-            <button class="button" @click="logout()">Log Out</button>
+            <RouterLink to="/" class="button" id="newPost">Home</RouterLink>
+            <RouterLink to="/posts/new" class="button" id="newPost">New Post</RouterLink>
+            <button class="button" @click="logout()" id="logOut">Log Out</button>
         </div>
 
         <div v-else class="buttons">
-            <button class="button" @click="modal.showModal('signUp')">Sign Up</button>
-            <button class="button" @click="modal.showModal('signIn')">Sign In</button>
+            <button id="signUp" class="button" @click="modal.showModal('signUp')">Sign Up</button>
+            <button data-testid="signIn" class="button" @click="modal.showModal('signIn')">Sign In</button>
         </div>
 
         </div>
